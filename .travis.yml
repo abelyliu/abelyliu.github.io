@@ -16,7 +16,7 @@ before_install:
 
 branches:
   only:
-  - blog
+  - source
 
 install: 
 - npm install hexo-cli -g
