@@ -69,7 +69,7 @@ archive_generator:
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 # theme: even
-theme: even
+theme: landscape
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
