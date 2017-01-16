@@ -27,4 +27,4 @@ branches:
     - source
 env:
  global:
-   - GH_REF: git@github.com:abelyliu/abelyliu.github.io.git
+   - GH_REF: github.com/abelyliu/abelyliu.github.io.git
