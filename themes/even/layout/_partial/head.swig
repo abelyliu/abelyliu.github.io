@@ -1,56 +1,54 @@
-<meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+{#- Website mata -#}
+{%- include "./_head/meta.swig" -%}
 
-{# Disable transformation #}
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-{# Website description #}
-{% if page.description %}
-  <meta name="description" content="{{ page.description }}"/>
-{% elif page.title %}
-  <meta name="description" content="{{ page.title }}"/>
-{% elif config.description %}
-  <meta name="description" content="{{ config.description }}"/>
-{% endif %}
-
-{# Website keywords #}
-{% if page.keywords %}
-  <meta name="keywords" content="{{ page.keywords }}" />
-{% elif page.tags and page.tags.length %}
-  <meta name="keywords" content="{% for tag in page.tags %}{{ tag.name }},{% endfor %}" />
-{% endif %}
-
-{# Website rss #}
-{% if theme.rss === 'default' and config.feed and config.feed.path %}
+{#- Website rss -#}
+{%- if theme.rss === 'default' and config.feed and config.feed.path -%}
   {{ feed_tag(config.feed.path) }}
-{% elif theme.rss %}
+{%- elif theme.rss -%}
   {{ feed_tag(theme.rss) }}
-{% else %}
+{%- else -%}
   {{ feed_tag('atom.xml') }}
-{% endif %}
+{%- endif -%}
 
-{# Website favicon #}
-{% if theme.favicon %}
+{#- Website favicon -#}
+{%- if theme.favicon -%}
   <link rel="shortcut icon" type="image/x-icon" href="{{ url_for(theme.favicon) }}?v={{ theme.version }}" />
-{% endif %}
+{%- endif -%}
 
-{# Canonical, good for google search engine #}
+{#- Canonical, good for google search engine -#}
 <link rel="canonical" href="{{ config.url }}/{{ page.canonical_path.replace('index.html', '') }}"/>
 
-{# Open Graph #}
-{{ open_graph() }}
+{#- Fancybox styling -#}
+{%- if theme.fancybox -%}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('lib/fancybox/jquery.fancybox.css') }}" />
+{%- endif -%}
 
-{# Theme styling #}
+{#- Nprogress styling -#}
+{%- if theme.pjax -%}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('lib/nprogress/nprogress.min.css') }}" />
+{%- endif -%}
+
+{#- MathJax (LaTeX) support -#}
+{%- if theme.latex -%}
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{%- endif -%}
+
+{#- Theme styling -#}
 <link rel="stylesheet" type="text/css" href="{{ url_for('css/style.css') }}?v={{ theme.version }}" />
 
-{# Fancybox styling #}
-{% if theme.fancybox %}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('lib/fancybox/jquery.fancybox.css') }}" />
-{% endif %}
+{#- Analytics and push -#}
+{%- if not env.debug -%}
+  {%- include "../_script/analytics.swig" -%}
+  {%- include "../_script/push.swig" -%}
+{%- endif -%}
 
-{# Analytics #}
-{% if not env.debug %}
-  {% include "../_script/analytics.swig" %}
-{% endif %}
+{#- LeanCloud Counter -#}
+{%- include "../_script/counter.swig"%}
+
+{%- set themeConfig = { leancloud: theme.leancloud, toc: theme.toc, fancybox: theme.fancybox, pjax: theme.pjax, latex: theme.latex } -%}
+<script>
+  window.config = {{ JSON.stringify(themeConfig) }};
+</script>

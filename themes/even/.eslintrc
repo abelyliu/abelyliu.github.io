@@ -10,7 +10,11 @@
   },
   "globals": {
     "$": true,
-    "Even": true
+    "AV": true,
+    "NProgress": true,
+    "Even": true,
+    "themeConfig": true,
+    "Slideout": true
   },
   "extends": "eslint:recommended"
 }

@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{ connfig.language }}">
+<html lang="{{ config.language }}">
   <head>
-    {% include '_partial/head.swig' %}
-    <title>{% block title %}{% endblock %}</title>
+    {%- include '_partial/head.swig' %}
+    <title>{%- block title -%}{%- endblock -%}</title>
   </head>
 
   <body>
-    <div class="container">
+    {%- include '_partial/slideout.swig' -%}
+    <div class="container" id="mobile-panel">
       <header id="header" class="header">
-        {%- include '_partial/header.swig' %}
+        {%- include '_partial/header.swig' -%}
       </header>
 
       <main id="main" class="main">
         <div class="content-wrapper">
           <div id="content" class="content">
-            {% block content %}{% endblock %}
+            {%- block content -%}{%- endblock -%}
           </div>
-          {% include '_partial/comments.swig' %}
-        </div>  
+          {%- include '_partial/comments.swig' -%}
+        </div>
       </main>
 
       <footer id="footer" class="footer">
-        {%- include '_partial/footer.swig' %}
+        {%- include '_partial/footer.swig' -%}
       </footer>
 
       <div class="back-to-top" id="back-to-top">
@@ -29,9 +30,9 @@
       </div>
     </div>
 
-    {% include '_script/comments.swig' %}
+    {%- include '_script/comments.swig' -%}
 
-    {% include '_script/libs.swig' %}
-    {% include '_script/theme.swig' %}
+    {%- include '_script/libs.swig' -%}
+    {%- include '_script/theme.swig' -%}
   </body>
 </html>

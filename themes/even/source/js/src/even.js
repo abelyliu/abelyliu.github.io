@@ -1,260 +1,278 @@
-(function () {
-  "use strict";
+(function (window) {
+  'use strict';
 
-  var Even = {};
+  function Even(config) {
+    this.config = config;
+  }
 
-  Even.search = {
-    _searchData: null,
-    _contentCache: null,
+  Even.prototype.setup = function() {
+    var leancloud = this.config.leancloud;
 
-    _toggleSearch: function () {
-      var $menuSearch = $('.menu-search'),
-          $searchInput = $('#search-input');
+    this.navbar();
+    this.responsiveTable();
 
-      $('#open-search').click(function () {
-        $menuSearch.addClass('expanded');
-        $searchInput.focus();
-        this._fetchSearchData();
-      }.bind(this));
-
-      $('#close-search').click(function () {
-        $menuSearch.removeClass('expanded');
-        $searchInput.val('');
-        if (this._contentCache) {
-          $('#content').replaceWith(this._contentCache);
-        }
-      }.bind(this));
-    },
-
-    _fetchSearchData: function () {
-      var searchPath = '/search.xml';
-      
-      if (!this._searchData) {
-        var that = this;
-        $.ajax({
-          url: searchPath,
-          dataType: 'xml',
-          success: function (xmlResponse) {
-            that._searchData = $('entry', xmlResponse).map(function () {
-              return {
-                title: $('title', this).text(),
-                content: $("content",this).text(),
-                url: $( "url" , this).text()
-              };
-            }).get();
-          }
-        })
-      }
-    },
-
-    _filterSearchData: function (keywords) {
-      var keywordsRe = new RegExp(keywords, 'i');
-      return this._searchData.filter(function (item) {
-        return keywordsRe.test(item.title) || keywordsRe.test(item.content);
-      });
-    },
-
-    _generateSearchContent: function (searchResult) {
-      var searchContent = '';
-      if (searchResult.length > 0) {
-        searchResult.map(function (item) {
-          searchContent += '<article class="post">';
-          searchContent += '<header class="post-header"><h1 class="post-title"><a class="post-link" href="'
-                            + item.url + '">' + item.title +'</a></h1></header>';
-          searchContent += '<div class="post-content">' + item.content.split('<a id="more"></a>')[0]
-                            + '<div class="read-more"><a href="' + item.url 
-                            + '" class="read-more-link">Read more..</a></div></div>';
-          searchContent += '</article>';
-        }); 
-      } else {
-        searchContent += '<div class="no-result"><h2>No result found!</h2></div>';
-      }
-
-      searchContent = '<div id="content" class="content" ><section class="search-result post">' 
-                      + searchContent + '</section></div>';
-      return searchContent;
-    },
-
-    _getSearchResult: function () {
-      var $searchInput = $('#search-input');
-      this._contentCache = $('#content').clone();
-
-      var that = this;
-      $searchInput.on('input', function () {
-        var keywords = this.value.trim();
-        if (keywords.length == 0) {
-          $('#content').replaceWith(that._contentCache);
-          return ;
-        }
-
-        var searchResult = that._filterSearchData(keywords);
-        var searchContent = that._generateSearchContent(searchResult);
-        $('#content').replaceWith(searchContent);
-      });
-
-      // Shield the Enter key
-      $searchInput.keydown(function (e) {
-        if (e.keyCode == 27) {
-          $('#close-search').click();
-        }
-        if (e.keyCode == 13) {
-          return false;
-        }
-      });
-
-    },
-
-    register: function () {
-      this._toggleSearch();
-      this._getSearchResult();
+    if (this.config.toc) {
+      this.scrollToc();
+      this.tocFollow();
     }
+    if (this.config.fancybox) {
+      this.fancybox();
+    }
+    if (leancloud.app_id && leancloud.app_key) {
+      this.recordReadings();
+    }
+    if (this.config.pjax) {
+      this.pjax();
+    }
+    if(this.config.latex) {
+      this.renderLaTeX();
+    }
+    this.backToTop();
   };
 
+  Even.prototype.navbar = function () {
+    var $nav = $('#mobile-navbar');
+    var $navIcon = $('.mobile-navbar-icon');
 
-  Even.backToTop = {
-    register: function () {
-      var $backToTop = $('#back-to-top');
+    var slideout = new Slideout({
+      'panel': document.getElementById('mobile-panel'),
+      'menu': document.getElementById('mobile-menu'),
+      'padding': 180,
+      'tolerance': 70
+    });
+    slideout.disableTouch();
 
-      $(window).scroll(function () {
-        if($(window).scrollTop() > 100) {
-          $backToTop.fadeIn(1000);
-        } else {
-          $backToTop.fadeOut(1000);
-        }
-      });
+    $navIcon.click(function () {
+      slideout.toggle();
+    });
 
-      $backToTop.click(function () {
-        $('body').animate({ scrollTop: 0 });
-      });
-    }
+    slideout.on('beforeopen', function () {
+      $nav.addClass('fixed-open');
+      $navIcon.addClass('icon-click').removeClass('icon-out');
+    });
+
+    slideout.on('beforeclose', function () {
+      $nav.removeClass('fixed-open');
+      $navIcon.addClass('icon-out').removeClass('icon-click');
+    });
+
+    $('#mobile-panel').on('touchend', function () {
+      slideout.isOpen() && $navIcon.click();
+    });
   };
 
+  Even.prototype.responsiveTable = function () {
+    var tables = $('.post-content > table')
+    tables.wrap('<div class="table-responsive">')
+  };
 
-  Even.postToc = {
-    _tocBlockFollow: function () {
-      var SPACING = 20;
+  Even.prototype.scrollToc = function () {
+    var SPACING = 20;
+    var $toc = $('.post-toc');
+    var $footer = $('.post-footer');
 
-      var $toc = $('.post-toc'),
-          $footer = $('.post-footer');
+    if ($toc.length) {
+      var minScrollTop = $toc.offset().top - SPACING;
+      var maxScrollTop = $footer.offset().top - $toc.height() - SPACING;
 
-      if ($toc.length) {
-        var minScrollTop = $toc.offset().top - SPACING,
-            maxScrollTop = $footer.offset().top - $toc.height() - SPACING;
-
-        var tocState = {
-          start: {
-            'position': 'absolute',
-            'top': minScrollTop
-          },
-          process: {
-            'position': 'fixed',
-            'top': SPACING
-          },
-          end: {
-            'position': 'absolute',
-            'top': maxScrollTop
-          }
+      var tocState = {
+        start: {
+          'position': 'absolute',
+          'top': minScrollTop
+        },
+        process: {
+          'position': 'fixed',
+          'top': SPACING
+        },
+        end: {
+          'position': 'absolute',
+          'top': maxScrollTop
         }
-
-        $(window).scroll(function () {
-          var scrollTop = $(window).scrollTop();
-
-          if (scrollTop < minScrollTop) {
-            $toc.css(tocState.start);
-          } else if (scrollTop > maxScrollTop) {
-            $toc.css(tocState.end);
-          } else {
-            $toc.css(tocState.process);
-          }
-        })
       }
-    },
-
-    _tocLinkJump: function () {
-      var HEADERFIX = 30;
-
-      var $toclink = $('.toc-link'),
-          $headerlink = $('.headerlink');
-
-      var headerlinkTop = $.map($headerlink, function (link) {
-        return $(link).offset().top;
-      });
 
       $(window).scroll(function () {
         var scrollTop = $(window).scrollTop();
 
-        for (var i = 0; i < $toclink.length; i++) {
-          var isLastOne = i + 1 === $toclink.length,
-              currentTop = headerlinkTop[i] - HEADERFIX,
-              nextTop = isLastOne ? Infinity : headerlinkTop[i+1] - HEADERFIX;
-              
-          if (currentTop < scrollTop && scrollTop <= nextTop) {
-            $($toclink[i]).addClass('active')
-          } else {
-            $($toclink[i]).removeClass('active')
-          }
+        if (scrollTop < minScrollTop) {
+          $toc.css(tocState.start);
+        } else if (scrollTop > maxScrollTop) {
+          $toc.css(tocState.end);
+        } else {
+          $toc.css(tocState.process);
         }
-      });
-    },
-
-    register: function () {
-      this._tocBlockFollow();
-      this._tocLinkJump();
+      })
     }
   };
 
+  Even.prototype.tocFollow = function () {
+    var HEADERFIX = 30;
+    var $toclink = $('.toc-link'),
+      $headerlink = $('.headerlink');
 
-  Even.mobileNavbar = {
-    _navbarScroll: function () {
-      var $header = $('#header');
+    var headerlinkTop = $.map($headerlink, function (link) {
+      return $(link).offset().top;
+    });
 
-      $(window).scroll(function () {
-        var scrollTop = $(window).scrollTop();
+    $(window).scroll(function () {
+      var scrollTop = $(window).scrollTop();
 
-        var $mobileNav = $('.mobile-navbar');
-        if (scrollTop > $header.height()) {
-          $mobileNav.fadeIn();
+      for (var i = 0; i < $toclink.length; i++) {
+        var isLastOne = i + 1 === $toclink.length,
+          currentTop = headerlinkTop[i] - HEADERFIX,
+          nextTop = isLastOne ? Infinity : headerlinkTop[i + 1] - HEADERFIX;
+
+        if (currentTop < scrollTop && scrollTop <= nextTop) {
+          $($toclink[i]).addClass('active');
         } else {
-          $mobileNav.fadeOut();
+          $($toclink[i]).removeClass('active');
         }
-      }); 
-    },
-
-    _toggleNavbarMenu: function () {
-      var toggleIcon = function () {
-        if ($(this).hasClass('icon-click')) {
-          $(this).removeClass('icon-click').addClass('icon-out');
-        } else {
-          $(this).removeClass('icon-out').addClass('icon-click');
-        }
-        $('.mobile-menu').slideToggle(200);
-      };
-
-      $('.mobile-header-icon').click(toggleIcon);
-    },
-
-    register: function () {
-      this._navbarScroll();
-      this._toggleNavbarMenu();
-    }
+      }
+    });
   };
 
-  Even.fancybox = {
-    register: function () {
+  Even.prototype.fancybox = function () {
+    if ($.fancybox) {
       $('.post').each(function () {
         $(this).find('img').each(function () {
-          $(this).wrap('<a class="fancybox" href="' + this.src + '" title="' + this.alt + '"></a>')
+          var href = 'href="' + this.src + '"';
+          var title = 'title="' + this.alt + '"';
+          $(this).wrap('<a class="fancybox" ' + href + ' ' + title + '></a>');
         });
       });
 
-      if ($.fancybox){
-        $('.fancybox').fancybox({
-          openEffect	: 'elastic',
-          closeEffect	: 'elastic'
-        });
-      }
+      $('.fancybox').fancybox({
+        openEffect: 'elastic',
+        closeEffect: 'elastic'
+      });
     }
   };
 
-  this.Even = Even;
-}.call(this));
+  Even.prototype.recordReadings = function () {
+    if (typeof AV !== 'object') return;
+
+    var $visits = $('.post-visits');
+    var Counter = AV.Object.extend('Counter');
+    if ($visits.length === 1) {
+      addCounter(Counter);
+    } else {
+      showTime(Counter);
+    }
+
+    function updateVisits(dom, time) {
+      var readText = dom.text().replace(/(\d+)/i, time)
+      dom.text(readText);
+    }
+
+    function addCounter(Counter) {
+      var query = new AV.Query(Counter);
+
+      var url = $visits.data('url').trim();
+      var title = $visits.data('title').trim();
+
+      query.equalTo('url', url);
+      query.find().then(function (results) {
+        if (results.length > 0) {
+          var counter = results[0];
+          counter.save(null, {
+            fetchWhenSave: true
+          }).then(function (counter) {
+            counter.increment('time', 1);
+            return counter.save();
+          }).then(function (counter) {
+            updateVisits($visits, counter.get('time'));
+          });
+        } else {
+          var newcounter = new Counter();
+          newcounter.set('title', title);
+          newcounter.set('url', url);
+          newcounter.set('time', 1);
+
+          var acl = new AV.ACL();
+          acl.setWriteAccess('*', true)
+          acl.setReadAccess('*', true)
+          newcounter.setACL(acl)
+
+          newcounter.save().then(function () {
+            updateVisits($visits, newcounter.get('time'));
+          });
+        }
+      }, function (error) {
+        // eslint-disable-next-line
+        console.log('Error:' + error.code + ' ' + error.message);
+      });
+    }
+
+    function showTime(Counter) {
+      $visits.each(function () {
+        var $this = $(this);
+        var query = new AV.Query(Counter);
+        var url = $this.data('url').trim();
+
+        query.equalTo('url', url);
+        query.find().then(function (results) {
+          if (results.length === 0) {
+            updateVisits($this, 0);
+          } else {
+            var counter = results[0];
+            updateVisits($this, counter.get('time'));
+          }
+        }, function (error) {
+          // eslint-disable-next-line
+          console.log('Error:' + error.code + ' ' + error.message);
+        });
+      })
+    }
+  };
+
+  Even.prototype.pjax = function () {
+    if (location.hostname === 'localhost' || this.hasPjax) return;
+    this.hasPjax = true;
+    this._fancybox = $.fancybox;
+    this._fancyboxProto = $.prototype.fancybox;
+
+    var that = this;
+    $(document).pjax('a', 'body', { fragment: 'body' });
+    $(document).on('pjax:send', function () {
+      NProgress.start();
+      $('body').addClass('hide-top');
+    });
+    $(document).on('pjax:complete', function () {
+      NProgress.done();
+      $('body').removeClass('hide-top');
+      $.fancybox = that._fancybox;
+      $.prototype.fancybox = that._fancyboxProto;
+      that.setup();
+    });
+  };
+
+  Even.prototype.backToTop = function () {
+    var $backToTop = $('#back-to-top');
+
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 100) {
+        $backToTop.fadeIn(1000);
+      } else {
+        $backToTop.fadeOut(1000);
+      }
+    });
+
+    $backToTop.click(function () {
+      $('body,html').animate({ scrollTop: 0 });
+    });
+  };
+
+  Even.prototype.renderLaTeX = function () {
+    var loopID = setInterval(function () {
+      if(window.MathJax) {
+        var jax = window.MathJax;
+        jax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\\(', '\\)']] }});
+        jax.Hub.Queue(['Typeset', jax.Hub, $(document.body)[0]]);
+        clearInterval(loopID);
+      }
+    }, 500);
+  }
+
+  var config = window.config;
+  var even = new Even(config);
+  even.setup();
+}(window))

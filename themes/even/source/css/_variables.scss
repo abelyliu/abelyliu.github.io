@@ -4,21 +4,21 @@
 
 // ========== Theme Color ========== //
 // Theme color config from `even/_config.yml`
-$theme-color-config: hexo-theme-config('theme.color');
+$theme-color-config: to-lower-case(hexo-theme-config('color'));
 
 // Default theme color map
 $theme-color-map: (
-  'Default': #c05b4d #f8f5ec,
-  'Mint Green': #16982B #f5f5f5,
-  'Cobalt Blue': #0047AB #f0f2f5,
-  'Hot Pink': #FF69B4 #f8f5f5,
-  'Dark Violet': #9932CC #f5f4fa
+  'default': #c05b4d #f8f5ec,
+  'mint green': #16982B #f5f5f5,
+  'cobalt blue': #0047AB #f0f2f5,
+  'hot pink': #FF69B4 #f8f5f5,
+  'dark violet': #9932CC #f5f4fa
 );
 
 // Check theme color config.
 // if it does not exist, use default theme color.
 @if not(map-has-key($theme-color-map, $theme-color-config)) {
-  $theme-color-config: 'Default';
+  $theme-color-config: 'default';
 }
 $theme-color-list: map-get($theme-color-map, $theme-color-config);
 
@@ -27,7 +27,6 @@ $theme-color: nth($theme-color-list, 1) !default;
 
 // Deputy theme color of the site.
 $deputy-color: nth($theme-color-list, 2) !default;
-
 
 // ========== Color ========== //
 $black: #0a0a0a !default;
@@ -64,20 +63,20 @@ $global-background: $white !default;
 
 // Headings font size of the site.
 $global-headings: (
-  h1: 1.5rem,
-  h2: 1.4rem,
-  h3: 1.3rem,
-  h4: 1.2rem,
-  h5: 1.1rem,
-  h6: 1rem
+  h1: 26px,
+  h2: 24px,
+  h3: 20px,
+  h4: 16px,
+  h5: 14px,
+  h6: 14px
 ) !default;
 
 
 // ========== Header ========== //
 // Padding of the site header.
-$header-padding: 20px 80px !default;
+$header-padding: 20px 20px !default;
 
-// Font family: Chancery 
+// Font family: Chancery
 @font-face {
   font-family: 'Chancery';
   src: url('../fonts/chancery/apple-chancery-webfont.eot');
@@ -106,14 +105,14 @@ $menu-item-mobile-margin: 5px !default;
 $menu-link-font-size: 18px !default;
 
 // Height of the mobile header.
-$mobile-header-height: 50px !default;
+$mobile-navbar-height: 50px !default;
 
 // ========== Post ========== //
 // Margin bottom of post list.
 $post-list-margin-bottom: 20px !default;
 
 // Padding of the post.
-$post-padding: 1em 0 2em !default;
+$post-padding: 1.5em 0 !default;
 
 // Border top of the post + post.
 $post-border: 1px solid $light-gray !default;
@@ -122,19 +121,19 @@ $post-border: 1px solid $light-gray !default;
 $post-title-font-size: 27px !default;
 
 // Font weight of post title.
-$post-title-font-weight: 200 !default;
+$post-title-font-weight: 400 !default;
 
 // Margin top of the post meta (post time).
 $post-meta-margin-top: 5px !default;
 
-// Font color of the post time.
-$post-time-font-color: $dark-gray !default;
+// Font color of the post meta.
+$post-meta-font-color: $dark-gray !default;
 
 // Border bottom of the read more link when hover it.
 $post-readMore-border-bottom: 1px solid $theme-color !default;
 
 // Margin top of the post footer.
-$post-footer-margin-top: 40px !default;
+$post-footer-margin-top: 20px !default;
 
 // Border top of post footer.
 $post-footer-border-top: 1px solid $light-gray !default;
@@ -153,6 +152,9 @@ $post-toc-width: 200px !default;
 // Backgroud color of the post toc.
 $post-toc-backgroud: rgba($deputy-color, 0.6) !default;
 
+// Margin left of the post toc.
+$post-toc-margin-left: $global-body-width - 15px !default;
+
 // Font size of the post toc title.
 $post-toc-title-size: 20px !default;
 
@@ -162,9 +164,12 @@ $post-toc-content: 15px !default;
 // List style of the post toc list.
 $post-toc-list-style: square !default;
 
+// Max screen media of the post toc.
+$toc-max-sreen-width: 2 * $post-toc-width + $post-toc-margin-left !default;
+
 // ========== Content ========== //
 // Headings anchor.
-$content-headings-anchor: "§" !default;
+$content-headings-anchor: "" !default;
 
 // Border bottom of the link when hover it.
 $content-link-border: 1px solid $theme-color !default;
@@ -177,7 +182,6 @@ $content-blockquote-border-left: 3px solid rgba($theme-color, 0.3) !default;
 
 // Border color of the table.
 $content-table-border-color: darken($deputy-color, 3%) !default;
-
 
 // ========== Code ========== //
 // Color of the code.
@@ -194,16 +198,36 @@ $code-highlight-color: (
   comment: #93a1a1,
   keyword: #859900,
   number: #2aa198,
-  name: #268bd2,
+  title: #268bd2,
   attribute: #b58900,
   symbol: #cb4b16,
   built_in: #dc322f
 ) !default;
 
 // Code type list.
-$code-type-list: ("html", "js", "bash", "css", "scss","diff", "java", "xml",
-                 "python", "json", "swift", "ruby", "perl", "php", "c", "java",
-                 "cpp", "scheme") !default;
+$code-type-list: (
+  html: "HTML",
+  js: "JavaScript",
+  bash: "Bash",
+  css: "CSS",
+  scss: "Scss",
+  java: "Java",
+  xml: "XML",
+  python: "Python",
+  json: "JSON",
+  swift: "Swift",
+  ruby: "Ruby",
+  php: "PHP",
+  c: "C",
+  cpp: "C++",
+  scheme: "Scheme",
+  objectivec: "Objective-C",
+  yml: "YAML",
+  stylus: "Stylus",
+  sql: "SQL",
+  http: "HTTP",
+  go: "Go"
+) !default;
 
 // Color of the code background.
 $code-background: $deputy-color !default;
@@ -221,7 +245,7 @@ $pagination-font-size: 20px !default;
 // Margin top of the footer.
 $footer-margin-top: 2em !default;
 
-// Margin left of the social link. 
+// Margin left of the social link.
 $social-link-margin-left: 10px !default;
 
 // Font size of the social icon.
@@ -233,7 +257,7 @@ $copyright-margin: 10px 0 !default;
 
 // ========== Archive ========== //
 // Margin of the archive.
-$archive-margin: 2em auto !default;
+$archive-margin: 2em 0px !default;
 
 // Max width of the archive.
 $archive-max-width: 550px !default;
