@@ -38,6 +38,7 @@ SLF4J: Detected logger name mismatch. Given name: "java.lang.Integer"; computed 
 SLF4J: See http://www.slf4j.org/codes.html#loggerNameMismatch for an explanation
 23:45:00.039 [main] ERROR java.lang.Integer - hello world
 ```
+<!--more-->
 
 进入获取方法：
 ```java
