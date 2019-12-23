@@ -7,7 +7,7 @@ category: java
 
 AbstractQueuedSynchronizer是jdk内实现很多并发工具的基础类，如下
 
-![AbstractQueuedSynchronizer子类](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/Snipaste_2019-12-23_14-27-04.png)
+![AbstractQueuedSynchronizer子类](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/Snipaste_2019-12-23_14-27-04.webp)
 
 AbstractQueuedSynchronizer用来实现锁，信号量等常见并发控制工具，今天就来分析下AQS的代码实现。
 
