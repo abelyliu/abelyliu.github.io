@@ -7,11 +7,11 @@ category: AQS
 
 前面两篇文章分析了AbstractQueuedSynchronizer中锁和线程协作的代码，这篇来分享一些其他的细节点，主要是我比较好奇的一些点。
 
-#### AQS排队队列为什么叫CLH队列？
+### AQS排队队列为什么叫CLH队列？
 
 不知道你是否有过这个疑问，其实准确的应该是类CLH队列，如果你仔细看过AbstractQueuedSynchronizer中Node的注释，应该明白CLH代表着Craig, Landin, Hagersten，他们当时给出了CLH队列用于实现自旋锁，这里被稍加改造用于实现`blocking synchronizers`。但基本思路还是一致，前驱节点会提供一些控制信息。有时候也会叫sync队列。
 
-#### Node节点会有哪些状态？
+### Node节点会有哪些状态？
 
 |   常量表示  |   值  |  含义   |
 | :---: | :---: | :---: |
@@ -28,7 +28,7 @@ category: AQS
 5. 代码里很多地方用状态是否小于0来判断是否需要唤醒后继线程，结合上面很容易得到
 <!--more-->
 
-#### 什么时候会node节点会设置为取消状态？
+### 什么时候会node节点会设置为取消状态？
 
 不知道你是否有过疑问，代码里有很多处理node节点为取消的情况，确没有看到什么地方可以把状态设置为取消。
 
@@ -125,7 +125,7 @@ protected final boolean tryAcquire(int acquires) {
 
 在这种情况下和上面场景一样，需要将错误和异常传递到方法的调用方，但在异常传递的过程中需要将节点处理掉，不然会影响后续节点的锁资源竞争。
 
-#### cancelAcquire代码分析
+### cancelAcquire代码分析
 上面提到了在异常情况下，会调用cancelAcquire方法，取消node节点，这里简单分析cancelAcquire的代码
 
 ```java
@@ -175,5 +175,3 @@ private void cancelAcquire(Node node) {
 上面图片中，上半部分是初始队列假设示意图，下半部分是代码执行后示意图
 
 如果你观察上面图会发现，node4的前驱还是取消节点，cancelAcquire方法里并没有把node4的前驱修改，cancelAcquire的目的是把node1只想node4，这样node1获取锁后，能正确唤醒node4线程，当node4被唤醒后，自己会在shouldParkAfterFailedAcquire方法内部修改前驱节点
-
-#### AbstractQueuedSynchronizer和AbstractQueuedLongSynchronizer是什么关系？
