@@ -294,7 +294,7 @@ final int fullTryAcquireShared(Thread current) {
 
 ![firstReader调用链](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/Snipaste_2019-12-25_20-55-12.png)
 
-我们发下除了获取锁和释放锁的代码外，还有getReadHoldCount方法依赖这个变量
+我们发现除了获取锁和释放锁的代码外，还有getReadHoldCount方法依赖这个变量
 
 ```java
 final int getReadHoldCount() {
