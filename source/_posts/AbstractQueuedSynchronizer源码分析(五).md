@@ -292,7 +292,7 @@ final int fullTryAcquireShared(Thread current) {
 
 我们可以查看下firstReader的依赖关系
 
-![firstReader调用链](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/aqsclh%E7%BB%93%E6%9E%84.svg)
+![firstReader调用链](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/Snipaste_2019-12-25_20-55-12.png)
 
 我们发下除了获取锁和释放锁的代码外，还有getReadHoldCount方法依赖这个变量
 
