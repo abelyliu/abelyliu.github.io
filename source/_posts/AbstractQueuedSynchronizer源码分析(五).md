@@ -290,6 +290,35 @@ final int fullTryAcquireShared(Thread current) {
 ### firstReader，firstReaderHoldCount，cachedHoldCounter，readHolds这些变量作用是什么？
 不知道你有没有发现，在获得共享锁时设置了一些变量，感觉不设置也没有什么问题。
 
+我们可以查看下firstReader的依赖关系
+
+![firstReader调用链](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/aqsclh%E7%BB%93%E6%9E%84.svg)
+
+我们发下除了获取锁和释放锁的代码外，还有getReadHoldCount方法依赖这个变量
+
+```java
+final int getReadHoldCount() {
+    if (getReadLockCount() == 0)
+        return 0;
+
+    Thread current = Thread.currentThread();
+    if (firstReader == current)
+        return firstReaderHoldCount;
+
+    HoldCounter rh = cachedHoldCounter;
+    if (rh != null && rh.tid == getThreadId(current))
+        return rh.count;
+
+    int count = readHolds.get().count;
+    if (count == 0) readHolds.remove();
+    return count;
+
+```
+
+可以看到这个方法会返回当前线程持有的读锁重入次数。也就是我们要提供一个重入次数统计的功能，最简单的办法就是用readHolds，把值存储在线程变量里。
+而这里jdk为了提高方法的执行效率，会对第一个持有读锁的线程和最后一个持有读锁的线程进行缓存，不从readHolds里获取，估计jdk认为很大概率是单个线程或则最后一个线程会获取锁，这样可以提升速度。
+
+
 下面看下释放共享锁的过程
 ```java
 protected final boolean tryReleaseShared(int unused) {
