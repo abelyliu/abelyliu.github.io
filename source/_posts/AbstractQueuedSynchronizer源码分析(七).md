@@ -155,4 +155,4 @@ protected final boolean tryReleaseShared(int releases) {
 现在回想下Semaphore的逻辑，在调用acquire时，如果state大于0则成功，在调用release时，只是简单的将state+1。
 不知道你有没有想过Semaphore可以用来干嘛，没错，Semaphore可以用来实现限流功能，像spring cloud gateway，Hystrix等等，都支持Semaphore实现限流功能。
 
-如果感觉理解的还不错，可以试试https://leetcode-cn.com/problems/print-in-order/这道简单的打印题。
+如果感觉理解的还不错，可以试试https://leetcode-cn.com/problems/print-in-order/
