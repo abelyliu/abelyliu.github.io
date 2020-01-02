@@ -9,11 +9,13 @@ category: J.U.C
 
 上文我们讨论了ArrayBlockingQueue几个常见代码方法的实现，其实代码分析时避开了一些代码的解释，就是迭代器相关的，如果你观察上面ArrayBlockingQueue的类图，你会发现他也实现了迭代器模式，支持并发修改的情况下迭代元素。虽然不经常使用此方法，我们还是可以学习一下，了解在并发情况下，提供迭代器的复杂性。
 
+
 ```java
 //出自dequeue出队方法
 if (itrs != null)
-		itrs.elementDequeued();
+	itrs.elementDequeued();
 ```
+
 为什么需要在出队时要处理修改器呢，今天就来了解下ArrayBlockingQueue的迭代器设计思路。
 
 <!--more-->
