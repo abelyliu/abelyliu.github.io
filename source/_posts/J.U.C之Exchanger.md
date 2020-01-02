@@ -56,13 +56,6 @@ hello is world
 
 可以看到A线程打印了B线程的值，B线程打印了A线程的值。
 
-我们今天就来分享下Exchanger是如何实现的。
-
-![单槽交换](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/202001023.svg)
-
-![多槽交换](https://abelyliu.oss-cn-shanghai.aliyuncs.com/blog/202001024.svg)
-
-
 Exchanger的基本思路是共享内存，如果槽位内没有数据则放入数据，等待其他线程来交换，其它线程来了之后，发现槽位不为空，则把其他线程值取出，并设置自己的值在里面，唤醒其它线程。
 
 在线程比较多的情况下，只有一个槽位大大影响交换的效率，这样就会升级为多槽位，也可以看出哪两个线程会交换也是随机的。
