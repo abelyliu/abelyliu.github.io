@@ -14,10 +14,8 @@ category: J.U.C
 如果你看过一些JDK的源码，你会发现JDK中无锁队列有这样一个假设，不会出现ABA问题，如下说明
 
 
-
-> ```
 > Note that like most non-blocking algorithms in this package, this implementation relies on the fact that in garbage collected systems, there is no possibility of ABA problems due to recycled nodes, so there is no need to use "counted pointers" or related techniques seen in versions used in non-GC'ed settings.
-> ```
+
 
 
 可以看到，因为垃圾回收的存在，基本可以不用考虑ABA问题，也就不要变更计数等CAS操作。其实原因也比较好理解，一个被持有的引用是不会被垃圾回收器回收，从而不会两个对象分配到同个内存空间。如果对无锁队列和ABA感兴趣，可以参阅相关链接。
@@ -31,7 +29,7 @@ category: J.U.C
 private static class Node<E> {
     volatile E item;
     volatile Node<E> next;
- 		//...
+ 	//...
 }
 ```
 
@@ -41,8 +39,7 @@ private static class Node<E> {
 //可以看到维护了一个head和一个tail，看起来也比较正常
 public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         implements Queue<E>, java.io.Serializable {
-
-  	//javadoc提到一点，head有可能无法到达tail，这点比较有意思
+    //javadoc提到一点，head有可能无法到达tail，这点比较有意思
     private transient volatile Node<E> head;
     private transient volatile Node<E> tail;
     //...
@@ -88,7 +85,7 @@ public ConcurrentLinkedQueue(Collection<? extends E> c) {
 public boolean offer(E e) {
     checkNotNull(e);
     final Node<E> newNode = new Node<E>(e);
-		//这是个死循环
+	//这是个死循环
     for (Node<E> t = tail, p = t;;) {
         Node<E> q = p.next;
       	//说明tail后面没有元素，可以尝试添加到链表结尾
@@ -344,3 +341,4 @@ private E advance() {
 ## 参考链接
 
 1. https://juejin.im/post/5d4789ca51882519ac307a6f
+2. http://ifeve.com/%e5%b9%b6%e5%8f%91%e9%98%9f%e5%88%97-%e6%97%a0%e7%95%8c%e9%9d%9e%e9%98%bb%e5%a1%9e%e9%98%9f%e5%88%97concurrentlinkedqueue%e5%8e%9f%e7%90%86%e6%8e%a2%e7%a9%b6/
