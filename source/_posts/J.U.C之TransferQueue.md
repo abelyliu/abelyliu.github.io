@@ -77,7 +77,7 @@ private E xfer(E e, boolean haveData, int how, long nanos) {
             Node n = p.next;
             p = (p != n) ? n : (h = head); // Use head if p offlist
         }
-			  //执行到这里说明没有节点可以配对
+        //执行到这里说明没有节点可以配对
         //如果是poll，tryTransfer方法，则直接返回，不需要等待
         if (how != NOW) {                 // No matches available
             //封装当前请求成为Node节点
@@ -121,7 +121,7 @@ private E awaitMatch(Node s, Node pred, E e, boolean timed, long nanos) {
             unsplice(pred, s);
             return e;
         }
-				//初始化自旋
+		//初始化自旋
         if (spins < 0) {                  // establish spins at/near front
             if ((spins = spinsFor(pred, s.isData)) > 0)
                 randomYields = ThreadLocalRandom.current();
