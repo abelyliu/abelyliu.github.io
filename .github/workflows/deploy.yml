@@ -39,7 +39,7 @@ jobs:
 
       - name: Deploy hexo
         env:
-          HEXO_DEPLOY_PRI: ${{secrets.GH_TOKEN}}
+          HEXO_DEPLOY_PRI: ${{ secrets.GH_TOKEN }}
           REPO: github.com/abelyliu/abelyliu.github.io.git
         run: |
           npx hexo g
