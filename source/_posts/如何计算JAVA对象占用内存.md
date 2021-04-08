@@ -1,3 +1,13 @@
+
+---
+title: 如何计算JAVA对象占用内存
+date: 2020-01-01 00:00:00
+categories: 
+- Java
+tags:
+- Java内存
+---
+
 # 如何计算JAVA对象占用内存
 
 ## Java对象内存布局
@@ -17,7 +27,7 @@
 
 在64位虚拟机中，引用大小是64位，也就是8个字节，对应的mark world也是8字节。即mark world 和klass ref都是8字节。
 
-
+<!--more-->
 
 ## 指针压缩
 
