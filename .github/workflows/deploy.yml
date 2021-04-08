@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - source
+
+env:
+  GIT_USER: abely
+  GIT_EMAIL: abely_liu@sina.com
+  THEME_REPO: sanonz/hexo-theme-concise
+  THEME_BRANCH: master
+  DEPLOY_REPO: sanonz/sanonz.github.io
+  DEPLOY_BRANCH: master
+
+jobs:
+  build:
+    name: Build on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [15.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install hexo-renderer-scss hexo-renderer-swig --save
+
+      - name: Deploy hexo
+        env:
+          HEXO_DEPLOY_PRI: ${{secrets.GH_TOKEN}}
+        run: |
+          hexo g
+          cd ./public
+          git init
+          git config user.name "abely"
+          git config user.email "abely_liu@sina.com"
+          git add .
+          git commit -m "Update docs"
+          git push --force --quiet "https://${GH_TOKEN}@github.com/abelyliu/abelyliu.github.io.git" master:master
