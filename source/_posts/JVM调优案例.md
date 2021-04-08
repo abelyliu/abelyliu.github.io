@@ -1,15 +1,11 @@
 ---
-title: 如何计算JAVA对象占用内存
+title: JVM调优案例
 date: 2020-01-01 00:00:00
 categories: 
 - Java
 tags:
 - Java内存
 ---
-
-
-
-# JVM调优案例
 
 ## 老年代晋升速率优化
 
