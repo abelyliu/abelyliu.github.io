@@ -41,7 +41,7 @@ jobs:
         env:
           HEXO_DEPLOY_PRI: ${{secrets.GH_TOKEN}}
         run: |
-          hexo g
+          npx hexo g
           cd ./public
           git init
           git config user.name "abely"
