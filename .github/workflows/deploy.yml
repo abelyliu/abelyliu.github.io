@@ -32,16 +32,18 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
 
-      - name: Install dependencies
-        run: |
-          npm install
-          npm install hexo-renderer-scss hexo-renderer-swig --save
-      - name: 4. 缓存
+      - name: cache
         uses: actions/cache@v1
         id: cache-dependencies
         with:
           path: node_modules
           key: ${{runner.OS}}-${{hashFiles('**/package-lock.json')}}    
+
+      - name: Install Dependencies 
+        if: steps.cache.outputs.cache-hit != 'true' 
+        run: |
+          npm install
+          npm install hexo-renderer-scss hexo-renderer-swig --save
 
       - name: Deploy hexo
         env:
