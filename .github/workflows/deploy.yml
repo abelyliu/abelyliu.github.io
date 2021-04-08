@@ -36,6 +36,12 @@ jobs:
         run: |
           npm install
           npm install hexo-renderer-scss hexo-renderer-swig --save
+      - name: 4. 缓存
+        uses: actions/cache@v1
+        id: cache-dependencies
+        with:
+          path: node_modules
+          key: ${{runner.OS}}-${{hashFiles('**/package-lock.json')}}    
 
       - name: Deploy hexo
         env:
