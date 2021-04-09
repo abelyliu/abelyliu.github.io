@@ -33,7 +33,7 @@ tags:
 
 上面在优化的过程中，无论从CAT还是GC日志，都出现了老年代突增的异常。情况出现的频率不是很高，所以开启JFR进行监控。
 
-![image-20210408222215522](/Users/abley/Library/Application%20Support/typora-user-images/image-20210408222215522.png)
+![image-20210408222215522](http://blog.abely.store/1617930579835-image-20210408222215522.png)
 
 可以看到，有一次分配了1.31G的对象，此接口曾经出现oom现象，当时并未怀疑此接口导致的OOM。此时用当时的日志请求参数尝试。
 
