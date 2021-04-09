@@ -50,6 +50,7 @@ jobs:
           HEXO_DEPLOY_PRI: ${{ secrets.GH_TOKEN }}
           REPO: github.com/abelyliu/abelyliu.github.io.git
         run: |
+          npx hexo clean
           npx hexo g
           cd ./public
           git init
