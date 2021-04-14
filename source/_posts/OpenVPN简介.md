@@ -1,5 +1,5 @@
 ---
-title: OpenVPN原理介绍
+title: OpenVPN简介
 tags:
   - proxy
 category:
