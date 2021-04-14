@@ -1,10 +1,10 @@
 ---
-title: HTTP代理介绍
+title: HTTP代理
 date: 2021-04-13 00:00:00
 categories: 
 - network
 tags:
-- proxy,network
+- proxy
 ---
 
 
