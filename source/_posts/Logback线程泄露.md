@@ -1,11 +1,14 @@
 ---
 title: Logback线程泄露
-date: 2021-04-08 00:00:00
+date: 2021-04-09 00:00:00
 categories: 
 - Java
 tags:
--  Logback,Bug排查
+- Logback
+- Log
 ---
+
+>>>>>>> 54ab48d99313eef01cc43f0c5c1875c348efcd3e
 
 最近发现一个服务出现了线程泄露的问题，线程数从几百缓慢的增加到一千多。获取线程栈，发现是日志线程出现泄露。
 
