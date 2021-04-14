@@ -13,7 +13,7 @@ tags:
 
 显示包内容，进入到/Applications/JDK Mission Control.app/Contents/Eclipse目录，编辑jmc.ini文件。
 
-![image-20210409144843173](http://blog.abely.store/1617950923756-image-20210409144843173.png)
+![image-20210409144843173](https://blog.abely.store/1617950923756-image-20210409144843173.png)
 
 增加vm参数，修改为自己对应的JDK目录，重新打开APP即可成功运行。
 
@@ -21,13 +21,13 @@ tags:
 
 ## JD-GUI
 
-![image-20210410225233216](/Users/abley/Library/Application%20Support/typora-user-images/image-20210410225233216.png)
+![](https://blog.abely.store/image-20210410225233216.png)
 
 同样打开包文件修改配置
 
-![image-20210410225701674](/Users/abley/Library/Application%20Support/typora-user-images/image-20210410225701674.png)
+![image-20210410225701674](https://blog.abely.store/image-20210410225701674.png)
 
 修改JAVA_HOME修改为自己的地址。
 
-![image-20210410225032388](/Users/abley/Library/Application%20Support/typora-user-images/image-20210410225032388.png)
+![image-20210410225032388](https://blog.abely.store/image-20210410225032388.png)
 
