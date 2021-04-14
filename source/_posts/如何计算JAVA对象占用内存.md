@@ -5,7 +5,7 @@ date: 2020-01-01 00:00:00
 categories: 
 - Java
 tags:
-- Java内存
+- memory
 ---
 
 ## Java对象内存布局
