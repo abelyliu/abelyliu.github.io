@@ -13,11 +13,11 @@ date: 2021-04-29 15:09:58
 ```java
 @Service
 public class A {
-		//这里A依赖B
+    //这里A依赖B
     @Autowired
     private B b;
 
-		//注意，这是一个异步方法
+    //注意，这是一个异步方法
     @Async
     public void funA() {
     }
@@ -25,7 +25,7 @@ public class A {
 
 @Service
 public class B  {
-		//这里B依赖A
+    //这里B依赖A
     @Autowired
     private A a;
 }
@@ -67,3 +67,13 @@ exposedObject是bean执行过initializeBean方法后的对象。initializeBean�
 earlySingletonReference，如果在当前创建对象的过程中，没有被调用doGetBean方法，那么earlySingletonReference为空，因为第二个参数为false，不会从singletonFactories里获取。如果不为空，要么和bean相同，要么是AOP处理过的代理对象。
 
 如果没有循环依赖，那么AOP的处理就会在initializeBean方法里，如果对象有循环依赖，那么会提前到`getSingleton(beanName,true)`里面执行。
+
+
+
+这里值得注意的是，上述代码并不一定能100%复现问题，取决于具体的Spring Bean加载顺序，如果先加载B，那么项目可以正常启动，所以我们可以用下面办法解决
+
+- @Lazy
+- @DependsOn
+- allowRawInjectionDespiteWrapping配置为true，这会导致注入的对象和实际对象不一致，所以这个不太建议
+
+本身循环依赖就容易来带问题，生产中还是建议分离业务。
