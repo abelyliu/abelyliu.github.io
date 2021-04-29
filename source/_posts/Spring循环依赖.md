@@ -7,8 +7,9 @@ category:
 date: 2021-04-29 11:04:13
 ---
 
-
 spring的循环依赖主要理解`singletonObjects`，`earlySingletonObjects`，`singletonFactories`三个缓存是如何使用的。
+
+<!--more-->
 
 ![](https://blog.abely.store/image-20210429095224398.png)
 
