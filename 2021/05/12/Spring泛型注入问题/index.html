@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Spring泛型注入问题"/><meta name="keywords" content="Spring, Abely" /><link rel="alternate" href="/default" title="Abely" ><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://abely.cn/2021/05/12/Spring泛型注入问题/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>Spring泛型注入问题 - Abely</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Abely</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Abely</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            Categories
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Spring泛型注入问题
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-05-12
+        </span><span class="post-category">
+            <a href="/categories/Java/">Java</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-content"><p>下面代码如果对象是按照a-&gt;d-&gt;b的创建顺序则会启动失败，如果按照a-&gt;b-&gt;d的创建顺序会启动成功，如果没有d对象，也会启动成功，但是我们可以发现d对象和a，b对象并无任何直接的联系。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Config</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Queue&lt;String&gt; <span class="title">a</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> A&lt;String&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@DependsOn(&quot;c&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">b</span><span class="params">(Queue&lt;String&gt; a)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Object();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@DependsOn(&#123;&quot;a&quot;&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired(required = false)</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Throwable&gt; e;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;<span class="title">E</span>&gt; <span class="keyword">implements</span> <span class="title">List</span>, <span class="title">Queue</span> </span>&#123;</span><br><span class="line">  <span class="comment">//实现接口方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ConfigurableApplicationContext run = SpringApplication.run(DemoApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//失败错误如下：</span></span><br><span class="line">***************************</span><br><span class="line">APPLICATION FAILED TO START</span><br><span class="line">***************************</span><br><span class="line"></span><br><span class="line">Description:</span><br><span class="line"></span><br><span class="line">Parameter <span class="number">0</span> of method b in com.example.demo.Config required a bean of type <span class="string">&#x27;java.util.Queue&#x27;</span> that could not be found.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Action:</span><br><span class="line"></span><br><span class="line">Consider defining a bean of type <span class="string">&#x27;java.util.Queue&#x27;</span> in your configuration.</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<p>这里出现问题主要和Spring的泛型注入有关，我们考虑创建D对象时的情况。D对象依赖了一个List<Throwable>类型的对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//解析集合类型对象，如List,Map,Array等类型，如上例中的List&lt;Throwable&gt;，里面实际上会获取所有Throwable类型的bean集合并返回</span></span><br><span class="line">Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);</span><br><span class="line"><span class="keyword">if</span> (multipleBeans != <span class="keyword">null</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> multipleBeans;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//否则当做普通对象处理，因为查询不到Throwable类型的bean，所以会当做普通类型处理，查询List类型的对象注入，因为会进行泛型处理，所以也不会错误注入</span></span><br><span class="line">Map&lt;String, Object&gt; matchingBeans = findAutowireCandidates(beanName, type, descriptor);</span><br><span class="line"><span class="keyword">if</span> (matchingBeans.isEmpty()) &#123;</span><br><span class="line">  <span class="keyword">if</span> (isRequired(descriptor)) &#123;</span><br><span class="line">    raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们看下泛型注入逻辑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//org.springframework.beans.factory.support.DefaultListableBeanFactory#findAutowireCandidates</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Map&lt;String, Object&gt; <span class="title">findAutowireCandidates</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="meta">@Nullable</span> String beanName, Class&lt;?&gt; requiredType, DependencyDescriptor descriptor)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//获取目标类型bean名称，这里会获取所有List类型的bean对象</span></span><br><span class="line">  String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(</span><br><span class="line">    <span class="keyword">this</span>, requiredType, <span class="keyword">true</span>, descriptor.isEager());</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">  <span class="keyword">for</span> (String candidate : candidateNames) &#123;</span><br><span class="line">    <span class="comment">//isAutowireCandidate方法内部会进行泛型处理</span></span><br><span class="line">    <span class="keyword">if</span> (!isSelfReference(beanName, candidate) &amp;&amp; isAutowireCandidate(candidate, descriptor)) &#123;</span><br><span class="line">      addCandidateEntry(result, candidate, descriptor, requiredType);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p><strong>首先我们思考一个问题，candidateNames集合中包不包含a。</strong></p>
+<p>我们来看a对象的定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Queue&lt;String&gt; <span class="title">a</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> A&lt;String&gt;();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;<span class="title">E</span>&gt; <span class="keyword">implements</span> <span class="title">List</span>, <span class="title">Queue</span> </span>&#123;</span><br><span class="line">  <span class="comment">//实现接口方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先我们目标类型是List，A是List的子类，但是bean定义时是Queue类型，Queue不是List的子类。</p>
+<p>问题就出现在这里，如果你去观察代码的实现，如果bean对象已经被创建，则判断a是不是List的子类，否则使用BeanDefinition中的信息，也就是Queue，所以candidateNames是否包含a取决于a是否被创建，也就是bean的创建顺序。但无论那种情况，List<Throwable>都不会被注入，因为isAutowireCandidate方法内部会进行泛型处理，但这个方法会有<code>副作用</code>。接下来我们阅读下泛型的处理代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">checkGenericTypeMatch</span><span class="params">(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//目标类型，也就是List&lt;Throwable&gt;类型</span></span><br><span class="line">  ResolvableType dependencyType = descriptor.getResolvableType();</span><br><span class="line">  <span class="comment">//如果目标类型不存在泛型则直接返回匹配</span></span><br><span class="line">  <span class="keyword">if</span> (dependencyType.getType() <span class="keyword">instanceof</span> Class) &#123;</span><br><span class="line">    <span class="comment">// No generic type -&gt; we know it&#x27;s a Class type-match, so no need to check again.</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//..</span></span><br><span class="line">  <span class="comment">//从创建方法中获取候选bean类型，这里是Queue&lt;String&gt;，如果和目标类型不匹配会返回null，这里会返回null</span></span><br><span class="line">  targetType = getReturnTypeForFactoryMethod(rbd, descriptor);</span><br><span class="line">  <span class="comment">//如果targetType为空，则用下面方法获取对象类型，这里会丢失泛型信息，结果为A&lt;?&gt;</span></span><br><span class="line">  Class&lt;?&gt; beanType = <span class="keyword">this</span>.beanFactory.getType(bdHolder.getBeanName());</span><br><span class="line">  targetType = ResolvableType.forClass(ClassUtils.getUserClass(beanType));</span><br><span class="line">  <span class="comment">//这里会把类型缓存起来，当b对象注入的时候，会发现targetType为A&lt;?&gt;，和目标Queue&lt;String&gt;不同，注入失败</span></span><br><span class="line">  <span class="keyword">if</span> (cacheType) &#123;</span><br><span class="line">    rbd.targetType = targetType;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//这里是处理通用泛型的情况,如上面的?，但是默认descriptor.fallbackMatchAllowed()返回false，这里不过多讨论</span></span><br><span class="line">  <span class="keyword">if</span> (descriptor.fallbackMatchAllowed() &amp;&amp;</span><br><span class="line">      (targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) &#123;</span><br><span class="line">    <span class="comment">// Fallback matches allow unresolvable generics, e.g. plain HashMap to Map&lt;String,String&gt;;</span></span><br><span class="line">    <span class="comment">// and pragmatically also java.util.Properties to any Map (since despite formally being a</span></span><br><span class="line">    <span class="comment">// Map&lt;Object,Object&gt;, java.util.Properties is usually perceived as a Map&lt;String,String&gt;).</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//A&lt;?&gt;并不是List&lt;Throwable&gt;子类型，所以返回false。</span></span><br><span class="line">  <span class="keyword">return</span> dependencyType.isAssignableFrom(targetType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的代码分析，可以看出问题出在缓存上，在第二次对b对象进行注入的时候，getReturnTypeForFactoryMethod(rbd, descriptor);并不会重新执行，导致注入失败。</p>
+<p>不同的bean创建顺序，rbd.targetType的值可能为<code>A&lt;?&gt;</code>或者<code>Queue&lt;String&gt;</code>，也就导致是否存在Queue<String>类型的bean。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://abely.cn">Abely Liu</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://abely.cn/2021/05/12/Spring%E6%B3%9B%E5%9E%8B%E6%B3%A8%E5%85%A5%E9%97%AE%E9%A2%98/">http://abely.cn/2021/05/12/Spring%E6%B3%9B%E5%9E%8B%E6%B3%A8%E5%85%A5%E9%97%AE%E9%A2%98/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/Spring/">Spring</a>
+            </div>
+        
+        <nav class="post-nav"><a class="next" href="/2021/04/29/Spring%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E4%B8%8EAsync/">
+        <span class="next-text nav-default">Spring循环依赖与Async</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2021<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Abely Liu</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

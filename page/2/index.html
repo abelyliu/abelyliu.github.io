@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<link rel="alternate" href="/default" title="Abely" ><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://abely.cn/page/2/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>Abely</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Abely</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Abely</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            Categories
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2021/04/09/Logback%E7%BA%BF%E7%A8%8B%E6%B3%84%E9%9C%B2/">Logback线程泄露</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-04-09
+        </span><span class="post-category">
+            <a href="/categories/Java/">Java</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-content"><p>最近发现一个服务出现了线程泄露的问题，线程数从几百缓慢的增加到一千多。获取线程栈，发现是日志线程出现泄露。</p>
+<p>通过arthas定位线程栈如下，发现是配置刷新事件触发了日志的重加载</p>
+<p><img src="http://blog.abely.store/1617890080686-image-20210408215440613.png" alt="image-20210408215440613"></p>
+          <div class="read-more">
+            <a href="/2021/04/09/Logback%E7%BA%BF%E7%A8%8B%E6%B3%84%E9%9C%B2/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2021/04/07/JVM%E8%B0%83%E4%BC%98%E6%A1%88%E4%BE%8B/">JVM调优案例</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-04-07
+        </span><span class="post-category">
+            <a href="/categories/Java/">Java</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-content"><h2 id="老年代晋升速率优化"><a href="#老年代晋升速率优化" class="headerlink" title="老年代晋升速率优化"></a>老年代晋升速率优化</h2><p><img src="http://blog.abely.store/1617874748451-image-20210408161422605.png" alt="image-20210408161422605"></p>
+<p>从监控上可以看到，老年代的增长速率比较高，一个小时内出现了三次full gc。</p>
+          <div class="read-more">
+            <a href="/2021/04/07/JVM%E8%B0%83%E4%BC%98%E6%A1%88%E4%BE%8B/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/01/01/%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97JAVA%E5%AF%B9%E8%B1%A1%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98/">如何计算JAVA对象占用内存</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-01-01
+        </span><span class="post-category">
+            <a href="/categories/Java/">Java</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-content"><h2 id="Java对象内存布局"><a href="#Java对象内存布局" class="headerlink" title="Java对象内存布局"></a>Java对象内存布局</h2><p>首先我们需要了解下对象内存结构的基础知识，这里不过多展开(这里对象指非数组对象)</p>
+<p><img src="https://abelytmp.oss-cn-hangzhou.aliyuncs.com/%E5%B0%8F%E4%B9%A6%E5%8C%A0/2020381581824087331-015a6de3-07ca-4400-99cd-bb97e241ed67.svg" alt="enter description here"></p>
+<p>一个对象由四部分组成</p>
+<ul>
+<li>mark world 元数据，如对象的hash code，锁偏向等信息</li>
+<li>klass ref 当前对象对应的class对象的引用，非JVM规范，这里是hotspot的优化</li>
+<li>data 当前对象的成员变量等信息(代码等信息存放在方法区中)</li>
+<li>padding 对齐到8字节的倍数(这里注意，也有对齐到16字节，和具体虚拟机有关，为了解释简洁，默认8字节)</li>
+</ul>
+<p>在32位的虚拟机中，引用大小都是32位，也就是4字节，对应的mark world也是4字节。即mark world 和klass ref都是4字节。</p>
+<p>在64位虚拟机中，引用大小是64位，也就是8个字节，对应的mark world也是8字节。即mark world 和klass ref都是8字节。</p>
+          <div class="read-more">
+            <a href="/2020/01/01/%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97JAVA%E5%AF%B9%E8%B1%A1%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2021<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Abely Liu</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

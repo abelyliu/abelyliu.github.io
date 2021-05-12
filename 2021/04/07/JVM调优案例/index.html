@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="JVM调优案例"/><meta name="keywords" content="Java内存, Abely" /><link rel="alternate" href="/default" title="Abely" ><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://abely.cn/2021/04/07/JVM调优案例/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>JVM调优案例 - Abely</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Abely</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Abely</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            Categories
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">JVM调优案例
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-04-07
+        </span><span class="post-category">
+            <a href="/categories/Java/">Java</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%80%81%E5%B9%B4%E4%BB%A3%E6%99%8B%E5%8D%87%E9%80%9F%E7%8E%87%E4%BC%98%E5%8C%96"><span class="toc-text">老年代晋升速率优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%80%81%E5%B9%B4%E4%BB%A3%E7%AA%81%E5%A2%9E%E4%BC%98%E5%8C%96"><span class="toc-text">老年代突增优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#finalize%E5%AF%B9%E8%B1%A1%E4%BC%98%E5%8C%96"><span class="toc-text">finalize对象优化</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="老年代晋升速率优化"><a href="#老年代晋升速率优化" class="headerlink" title="老年代晋升速率优化"></a>老年代晋升速率优化</h2><p><img src="http://blog.abely.store/1617874748451-image-20210408161422605.png" alt="image-20210408161422605"></p>
+<p>从监控上可以看到，老年代的增长速率比较高，一个小时内出现了三次full gc。</p>
+<span id="more"></span>
+
+<p><img src="http://blog.abely.store/1617874748451-image-20210408161713009.png" alt="image-20210408161713009"></p>
+<p>这里可以看到survivor使用率到达100%时，survivor才使用了50m左右，和eden区的比例，很明显不是8:2的关系。</p>
+<p>问题的原因在于此服务使用了Parallel Scavenge垃圾回收器，默认会开启UseAdaptiveSizePolicy自适应优化功能，可以动态调整堆大小和eden区survivor区比值。这里选择关闭自适应优化<code>-XX:-UseAdaptiveSizePolicy</code>。</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408163153610.png" alt="image-20210408163153610"></p>
+<p>可以看到，老年代的增长数据变得相对稳定很多，在Minor GC方面，两者差距不是很大。</p>
+<h2 id="老年代突增优化"><a href="#老年代突增优化" class="headerlink" title="老年代突增优化"></a>老年代突增优化</h2><p><img src="http://blog.abely.store/1617874748451-image-20210408163625264.png" alt="image-20210408163625264"></p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408163932870.png" alt="image-20210408163932870"></p>
+<p>上面在优化的过程中，无论从CAT还是GC日志，都出现了老年代突增的异常。情况出现的频率不是很高，所以开启JFR进行监控。</p>
+<p><img src="http://blog.abely.store/1617930579835-image-20210408222215522.png" alt="image-20210408222215522"></p>
+<p>可以看到，有一次分配了1.31G的对象，此接口曾经出现oom现象，当时并未怀疑此接口导致的OOM。此时用当时的日志请求参数尝试。</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408164402734.png" alt="image-20210408164402734"></p>
+<p>这是一段第三方对接示例代码，在某种情况下会导致数据异常，创建了一个超大数组。</p>
+<h2 id="finalize对象优化"><a href="#finalize对象优化" class="headerlink" title="finalize对象优化"></a>finalize对象优化</h2><p><img src="http://blog.abely.store/1617874748451-image-20210408164844285.png" alt="image-20210408164844285"></p>
+<p>一开始关注这个项目就是因为项目在Full GC后无法回收足够的空间，第二次Full GC则不然，如果有经验的话，应该可以猜到是finalize对象导致GC很难回收空间。</p>
+<p>如果一个对象实现了finalize方法，在GC的时候并不会直接清理对象，只是简单标记下，然后在GC结束后，会和用户线程并行执行，并调用finalize方法，下次GC的时候会清理哪些已经被调用finalize方法的对象。</p>
+<p>如果老年代里的对象80%都是实现了finalize方法，那么第一次GC，理论上GC后的内存占用率会大于80%。</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408165705565.png" alt="image-20210408165705565"></p>
+<p>这里从JFR里也侧面印证我们的猜测。</p>
+<p>这里确定对象最简单的方法就是获取一个堆快照，分析是哪些对象，比较常见的就是socket类。事实上从堆文件里也印证了猜测。确定了问题，接下来就是确定优化的代码，我们也可以从JFR里分析。</p>
+<p><img src="http://blog.abely.store/1617891567429-image-20210408221927375.png" alt="image-20210408221927375"></p>
+<p>按照采样到次数降序进行排查，很容易找到要优化的代码。</p>
+<p>上面说过是因为socket的原因，我们应该减少创建这种GC负担比较重的对象，所以应该使用连接池，很明显应用程序应该没有对连接进行复用。项目连接使用的是JDK自带的HttpsURLConnection，默认是可以复用连接，代码如下：</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408170726846.png" alt="image-20210408170726846"></p>
+<p>这里原因在于每次使用的不同的SSLSocketFactory，这里只需要将ssf修改为单例使用即可。如果要使socket能够复用，要处理许多异常情况，所以比较建议使用第三方库简化使用，这里使用OkHttp。</p>
+<p>下面是未重用连接前的情况，还有很多time wait的连接，每次请求都创建一个新的socket，可以从端口号看出</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408171755704.png" alt="image-20210408171755704"></p>
+<p>下面是优化后的情况</p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408171855708.png" alt="image-20210408171855708"></p>
+<p><img src="http://blog.abely.store/1617874748451-image-20210408172231815.png" alt="image-20210408172231815"></p>
+<p>对应接口的50线，95线，99.9线接口请求减少了15ms。从网络角度，每次握手需要1.5RTT握手，2RTT的TSL1.2握手，至少多出3RTT时延。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://abely.cn">Abely Liu</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://abely.cn/2021/04/07/JVM%E8%B0%83%E4%BC%98%E6%A1%88%E4%BE%8B/">http://abely.cn/2021/04/07/JVM%E8%B0%83%E4%BC%98%E6%A1%88%E4%BE%8B/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/Java%E5%86%85%E5%AD%98/">Java内存</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2021/04/09/Logback%E7%BA%BF%E7%A8%8B%E6%B3%84%E9%9C%B2/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Logback线程泄露</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2020/01/01/%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97JAVA%E5%AF%B9%E8%B1%A1%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98/">
+        <span class="next-text nav-default">如何计算JAVA对象占用内存</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2021<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Abely Liu</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>
