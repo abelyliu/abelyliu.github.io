@@ -117,7 +117,7 @@ public class A<E> implements List, Queue {
 
 首先我们目标类型是List，A是List的子类，但是bean定义时是Queue类型，Queue不是List的子类。
 
-问题就出现在这里，如果你去观察代码的实现，如果bean对象已经被创建，则判断a是不是List的子类，否则使用BeanDefinition中的信息，也就是Queue。但无论那种情况，List<Throwable>都不会被注入，因为isAutowireCandidate方法内部会进行泛型处理。接下来我们阅读下泛型的处理代码：
+问题就出现在这里，如果你去观察代码的实现，如果bean对象已经被创建，则判断a是不是List的子类，否则使用BeanDefinition中的信息，也就是Queue，所以candidateNames是否包含a取决于a是否被创建，也就是bean的创建顺序。但无论那种情况，List<Throwable>都不会被注入，因为isAutowireCandidate方法内部会进行泛型处理，但这个方法会有`副作用`。接下来我们阅读下泛型的处理代码：
 
 ```java
 protected boolean checkGenericTypeMatch(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
@@ -152,3 +152,5 @@ protected boolean checkGenericTypeMatch(BeanDefinitionHolder bdHolder, Dependenc
 ```
 
 通过上面的代码分析，可以看出问题出在缓存上，在第二次对b对象进行注入的时候，getReturnTypeForFactoryMethod(rbd, descriptor);并不会重新执行，导致注入失败。
+
+不同的bean创建顺序，rbd.targetType的值可能为`A<?>`或者`Queue<String>`，也就导致是否存在Queue<String>类型的bean。
